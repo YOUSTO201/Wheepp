@@ -1,12 +1,11 @@
-// import 'dart:ui';
 import 'package:chatapp/components/app_colors.dart';
 import 'package:chatapp/components/custombuttonauth.dart';
-// import 'package:chatapp/forpass.dart';
+import 'package:chatapp/generated/l10n.dart';
 import 'package:chatapp/helper/ssb.dart';
-// import 'package:chatapp/homepage.dart';
+import 'package:chatapp/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class Login extends StatefulWidget {
@@ -18,10 +17,10 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool eye = true;
-
   String? email, password;
   bool isLodaing = false;
   GlobalKey<FormState> formmKey = GlobalKey();
+  final LocalAuthentication auth = LocalAuthentication();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class _LoginState extends State<Login> {
       child: Scaffold(
         body: Container(
           color: backgroundcolor,
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           child: Form(
             key: formmKey,
             child: ListView(
@@ -38,28 +37,31 @@ class _LoginState extends State<Login> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 70),
+                    SizedBox(height: 60),
                     Center(
                       child: Text(
-                        'Login',
+                        S.of(context).LoginButton,
                         style: TextStyle(
-                          fontSize: 37.5,
+                          fontSize: isArabic() ? 32 : 37.5,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 60,
-                    ),
+                    SizedBox(height: isArabic() ? 90 : 70),
                     Padding(
-                      padding: const EdgeInsets.only(left: 17.5),
-                      child: const Text(
-                        'Email',
+                      padding: EdgeInsets.only(
+                        left: isArabic() ? 0 : 17.5,
+                        right: isArabic() ? 12.5 : 0,
+                      ),
+                      child: Text(
+                        S.of(context).Email,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 24,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ),
@@ -70,7 +72,7 @@ class _LoginState extends State<Login> {
                       },
                       validator: (data) {
                         if (data!.isEmpty) {
-                          return 'field is required';
+                          return S.of(context).fieldIsRequired;
                         }
                       },
                       keyboardType: TextInputType.emailAddress,
@@ -79,7 +81,7 @@ class _LoginState extends State<Login> {
                           fontSize: 16,
                           color: Colors.grey[400],
                         ),
-                        hintText: 'example@gmail.com',
+                        hintText: S.of(context).HintTextEmail,
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -100,13 +102,17 @@ class _LoginState extends State<Login> {
                     ),
                     SizedBox(height: 40),
                     Padding(
-                      padding: const EdgeInsets.only(left: 17.5),
-                      child: const Text(
-                        'Password',
+                      padding: EdgeInsets.only(
+                        left: isArabic() ? 0 : 17.5,
+                        right: isArabic() ? 12.5 : 0,
+                      ),
+                      child: Text(
+                        S.of(context).Password,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: isArabic() ? 22.5 : 20,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ),
@@ -117,7 +123,7 @@ class _LoginState extends State<Login> {
                       },
                       validator: (data) {
                         if (data!.isEmpty) {
-                          return 'field is required';
+                          return S.of(context).fieldIsRequired;
                         }
                       },
                       obscureText: eye,
@@ -137,7 +143,7 @@ class _LoginState extends State<Login> {
                           fontSize: 16,
                           color: Colors.grey[400],
                         ),
-                        hintText: 'Enter your password',
+                        hintText: S.of(context).Enterpass,
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -157,20 +163,21 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     SizedBox(height: 8),
-                    Container(
-                      alignment: Alignment.topRight,
-                      margin:
-                          const EdgeInsets.only(top: 25, bottom: 25, right: 10),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, 'forpass');
-                        },
-                        child: const Text(
-                          'Forgot Password?',
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushNamed("resetPassword");
+                      },
+                      child: Container(
+                        alignment: Alignment.topRight,
+                        margin: EdgeInsets.only(top: 25, bottom: 25, right: 10),
+                        child: Text(
+                          S.of(context).ForgotPassword,
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontWeight:
+                                isArabic() ? FontWeight.w700 : FontWeight.bold,
+                            fontSize: 15.5,
                             color: Colors.grey,
+                            fontFamily: 'Rubik',
                           ),
                         ),
                       ),
@@ -184,27 +191,125 @@ class _LoginState extends State<Login> {
                             setState(() {});
                             try {
                               await login();
-                              Navigator.pushNamed(context, 'basma', arguments: email);
+                              FirebaseAuth.instance.currentUser!.emailVerified
+                                  ? Navigator.pushNamed(
+                                      context,
+                                      'chatPage',
+                                      arguments: email,
+                                    )
+                                  : showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () async {
+                                              if (formmKey.currentState!
+                                                  .validate()) {
+                                                try {
+                                                  await login();
+                                                  await FirebaseAuth
+                                                      .instance.currentUser!
+                                                      .sendEmailVerification();
+                                                  Navigator.of(context).pop();
+                                                  ssj(
+                                                      context,
+                                                      S
+                                                          .of(context)
+                                                          .SubmitedSucceed);
+                                                } on FirebaseAuthException catch (e) {
+                                                  if (e.code ==
+                                                      'invalid-email') {
+                                                    ssb(
+                                                        context,
+                                                        S
+                                                            .of(context)
+                                                            .InvalidEmail);
+                                                  } else if (e.code ==
+                                                      'network-request-failed') {
+                                                    ssb(
+                                                        context,
+                                                        S
+                                                            .of(context)
+                                                            .BadNetwork);
+                                                  } else if (e.code ==
+                                                      'too-many-requests') {
+                                                    ssb(
+                                                        context,
+                                                        S
+                                                            .of(context)
+                                                            .TooManyRequest);
+                                                  } else {
+                                                    ssb(context,
+                                                        'There was an error');
+                                                  }
+                                                  Navigator.of(context).pop();
+                                                }
+                                              }
+                                            },
+                                            child: Text(
+                                              S
+                                                  .of(context)
+                                                  .SendVerificationAgain,
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text(
+                                              S.of(context).Ok,
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                        backgroundColor: backgroundcolor,
+                                        title: Text(
+                                          S.of(context).OopsLogin,
+                                          style: TextStyle(
+                                            color: Color.fromARGB(
+                                              255,
+                                              184,
+                                              184,
+                                              184,
+                                            ),
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    );
                             } on FirebaseAuthException catch (e) {
                               if (e.code == 'invalid-email') {
-                                ssb(context, 'Invalid email');
+                                ssb(context, S.of(context).InvalidEmail);
                               } else if (e.code == 'invalid-credential') {
-                                ssb(context, 'Wrong credentials');
+                                ssb(context, S.of(context).WrongCredentials);
+                              } else if (e.code == 'network-request-failed') {
+                                ssb(context, S.of(context).BadNetwork);
                               } else if (e.code == 'too-many-requests') {
-                                ssb(context,
-                                    'Too many requests, Try again later');
+                                ssb(context, S.of(context).TooManyRequest);
                               } else {
                                 ssb(context, 'There was an error');
                               }
                             } catch (e) {
-                              ssb(context, 'There was an error');
+                              ssb(context, S.of(context).Error);
                             }
                             isLodaing = false;
                             setState(() {});
                           } else {}
                         },
                         child: CustomButtonAuth(
-                          title: 'Login',
+                          onPressed: () async {
+                            Navigator.pushNamed(context, 'chatPage',
+                                arguments: email);
+                          },
+                          title: S.of(context).LoginButton,
                         ),
                       ),
                     ),
@@ -214,11 +319,12 @@ class _LoginState extends State<Login> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "New in wheepp? ",
+                            S.of(context).NewInWheepp,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: grey,
                               fontSize: 17.5,
+                              fontFamily: 'Rubik',
                             ),
                           ),
                           InkWell(
@@ -226,11 +332,13 @@ class _LoginState extends State<Login> {
                               Navigator.of(context).pushNamed("signup");
                             },
                             child: Text(
-                              "Signup",
+                              S.of(context).SignupButton,
                               style: TextStyle(
-                                  color: lightgreen,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17.5),
+                                color: lightgreen,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17.5,
+                                fontFamily: 'Rubik',
+                              ),
                             ),
                           ),
                         ],
@@ -247,7 +355,10 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> login() async {
-    UserCredential user = await FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: email!, password: password!);
+    UserCredential user =
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email!,
+      password: password!,
+    );
   }
 }

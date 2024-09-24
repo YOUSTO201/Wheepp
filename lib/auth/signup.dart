@@ -1,12 +1,10 @@
-import 'package:chatapp/chatpage.dart';
 import 'package:chatapp/components/app_colors.dart';
 import 'package:chatapp/components/custombuttonauth.dart';
+import 'package:chatapp/generated/l10n.dart';
 import 'package:chatapp/helper/ssb.dart';
-import 'package:chatapp/homepage.dart';
+import 'package:chatapp/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class SignUp extends StatefulWidget {
@@ -18,7 +16,6 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   bool eye = true;
-
   String? email;
   String? password;
   bool isLodaing = false;
@@ -39,29 +36,31 @@ class _SignUpState extends State<SignUp> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 60),
+                    SizedBox(height: 70),
                     Center(
-                      child: const Text(
-                        'Signup',
+                      child: Text(
+                        S.of(context).SignupButton,
                         style: TextStyle(
-                          fontSize: 37.5,
+                          fontSize: isArabic() ? 32 : 37.5,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 45,
-                    ),
-                    Container(height: 20),
+                    SizedBox(height: 75),
                     Padding(
-                      padding: const EdgeInsets.only(left: 15),
+                      padding: EdgeInsets.only(
+                        left: isArabic() ? 0 : 17.5,
+                        right: isArabic() ? 12.5 : 0,
+                      ),
                       child: Text(
-                        'Email',
+                        S.of(context).Email,
                         style: TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 24,
-                          color: Colors.white,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ),
@@ -69,7 +68,7 @@ class _SignUpState extends State<SignUp> {
                     TextFormField(
                       validator: (data) {
                         if (data!.isEmpty) {
-                          return 'field is required';
+                          return S.of(context).fieldIsRequired;
                         }
                       },
                       onChanged: (data) {
@@ -81,7 +80,7 @@ class _SignUpState extends State<SignUp> {
                           fontSize: 16,
                           color: Colors.grey[400],
                         ),
-                        hintText: 'example@gmail.com',
+                        hintText: S.of(context).HintTextEmail,
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -102,13 +101,17 @@ class _SignUpState extends State<SignUp> {
                     ),
                     SizedBox(height: 40),
                     Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: const Text(
-                        'Password',
+                      padding: EdgeInsets.only(
+                        left: isArabic() ? 0 : 17.5,
+                        right: isArabic() ? 12.5 : 0,
+                      ),
+                      child: Text(
+                        S.of(context).Password,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
                           color: Colors.white,
+                          fontSize: isArabic() ? 22.5 : 20,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                     ),
@@ -116,7 +119,7 @@ class _SignUpState extends State<SignUp> {
                     TextFormField(
                       validator: (data) {
                         if (data!.isEmpty) {
-                          return 'field is required';
+                          return S.of(context).fieldIsRequired;
                         }
                       },
                       onChanged: (data) {
@@ -139,7 +142,7 @@ class _SignUpState extends State<SignUp> {
                           fontSize: 16,
                           color: Colors.grey[400],
                         ),
-                        hintText: 'Create a strong password',
+                        hintText: S.of(context).HintTextPassword,
                         filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
@@ -158,10 +161,9 @@ class _SignUpState extends State<SignUp> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 40),
                   ],
                 ),
-                SizedBox(height: 40),
+                SizedBox(height: 80),
                 Center(
                   child: GestureDetector(
                     onTap: () async {
@@ -170,38 +172,93 @@ class _SignUpState extends State<SignUp> {
                         setState(() {});
                         try {
                           await registeruser();
-                          Navigator.pushNamed(context, 'basma');
+                          FirebaseAuth.instance.currentUser!
+                              .sendEmailVerification();
+                          FirebaseAuth.instance.currentUser!.emailVerified
+                              ? Navigator.pushNamed(
+                                  context,
+                                  'chatPage',
+                                  arguments: email,
+                                )
+                              : showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          final user =
+                                              FirebaseAuth.instance.currentUser;
+                                          await user?.delete();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          S.of(context).Close,
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: isArabic() ? 18.5 : 16,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pushNamed("login");
+                                        },
+                                        child: Text(
+                                          S.of(context).Ok,
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    backgroundColor: backgroundcolor,
+                                    title: Text(
+                                      S.of(context).OopsSignup,
+                                      style: TextStyle(
+                                        color: Color.fromARGB(
+                                          255,
+                                          184,
+                                          184,
+                                          184,
+                                        ),
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                );
                         } on FirebaseAuthException catch (ex) {
                           if (ex.code == 'weak-password') {
-                            ssb(context, 'The password is too weak');
+                            ssb(context, S.of(context).WeakPassword);
                           } else if (ex.code == 'email-already-in-use') {
-                            ssb(context,
-                                'This email is already taken for another account');
+                            ssb(context, S.of(context).EmailAlreadyInUse);
                           }
-                      
                         } catch (ex) {
-                          ssb(context, 'There was an error');
+                          ssb(context, S.of(context).Error);
                         }
                         isLodaing = false;
                         setState(() {});
                       } else {}
                     },
                     child: CustomButtonAuth(
-                      title: 'Signup',
+                      title: S.of(context).SignupButton,
                     ),
                   ),
                 ),
-                SizedBox(height: 90),
+                const SizedBox(height: 90),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Have An Account? ",
+                        S.of(context).HaveAnAccount,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: grey,
-                          fontSize: 16.5,
+                          fontSize: isArabic() ? 15 : 16.5,
+                          fontFamily: 'Rubik',
                         ),
                       ),
                       InkWell(
@@ -209,11 +266,12 @@ class _SignUpState extends State<SignUp> {
                           Navigator.of(context).pushNamed("login");
                         },
                         child: Text(
-                          "Login",
+                          S.of(context).LoginButton,
                           style: TextStyle(
                             color: lightgreen,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16.5,
+                            fontSize: isArabic() ? 15 : 16.5,
+                            fontFamily: 'Rubik',
                           ),
                         ),
                       ),

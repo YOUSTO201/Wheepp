@@ -23,6 +23,7 @@ class CustomButtonAuth extends StatelessWidget {
               color: Color.fromARGB(255, 255, 255, 255),
               fontSize: 27.5,
               fontWeight: FontWeight.bold,
+              fontFamily: 'Rubik',
             ),
           ),
         ),

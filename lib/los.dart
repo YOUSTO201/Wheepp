@@ -1,9 +1,8 @@
-import 'package:chatapp/auth/login.dart';
-import 'package:chatapp/auth/signup.dart';
 import 'package:chatapp/components/app_colors.dart';
 import 'package:chatapp/components/custombuttonauth.dart';
+import 'package:chatapp/generated/l10n.dart';
+import 'package:chatapp/main.dart';
 import 'package:flutter/material.dart';
-
 
 class Los extends StatelessWidget {
   const Los({super.key});
@@ -16,7 +15,10 @@ class Los extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundcolor,
           image: DecorationImage(
-            image: AssetImage('images/khal.png'),
+            fit: BoxFit.fill,
+            image: isArabic()
+                ? AssetImage('images/khala.png')
+                : AssetImage('images/khal.png'),
           ),
         ),
         child: Column(
@@ -25,41 +27,48 @@ class Los extends StatelessWidget {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 12.5),
+                  padding: EdgeInsets.only(
+                    left: isArabic() ? 0 : 12.5,
+                    right: isArabic() ? 12.5 : 0,
+                  ),
                   child: Text(
-                    'Get Started',
+                    S.of(context).GetStarted,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 43.5,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Rubik',
                     ),
                   ),
                 ),
               ],
             ),
-            
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 12.5),
+                  padding: EdgeInsets.only(
+                    left: isArabic() ? 0 : 12.5,
+                    right: isArabic() ? 12.5 : 0,
+                  ),
                   child: Text(
-                    'Start with Login or Signup',
+                    S.of(context).LoginorSignup,
                     style: TextStyle(
-                      fontSize: 18.5,
+                      fontSize: isArabic() ? 14.5 : 17.5,
+                      fontFamily: 'Rubik',
+                      fontWeight: FontWeight.w600,
                       color: Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
                 ),
               ],
             ),
-            
-            SizedBox(height: 300),
+            SizedBox(height: 350),
             GestureDetector(
               onTap: () {
-              Navigator.pushNamed(context, 'login');
+                Navigator.pushNamed(context, 'login');
               },
               child: CustomButtonAuth(
-                title: 'Login',
+                title: S.of(context).LoginButton,
               ),
             ),
             SizedBox(height: 20),
@@ -68,8 +77,7 @@ class Los extends StatelessWidget {
                 Navigator.pushNamed(context, 'signup');
               },
               child: CustomButtonAuth(
-                title: 'Signup',
-                
+                title: S.of(context).SignupButton,
               ),
             ),
           ],

@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Localeprovider.dart';
 
-class Slang extends StatefulWidget {
-  const Slang({super.key});
+class LanguageInto extends StatefulWidget {
+  const LanguageInto({super.key});
 
   @override
-  State<Slang> createState() => _SlangState();
+  State<LanguageInto> createState() => _SlangState();
 }
 
-class _SlangState extends State<Slang> {
+class _SlangState extends State<LanguageInto> {
   String? language = 'English';
 
   @override
@@ -48,42 +48,36 @@ class _SlangState extends State<Slang> {
       backgroundColor: backgroundcolor,
       body: Column(
         children: [
-          SizedBox(height: 75),
-          Center(
-            child: Image.asset(
-              'images/wpa.png',
-              height: 120,
-            ),
-          ),
-          SizedBox(height: 45),
+          SizedBox(height: isArabic() ? 120 : 135),
           Text(
-            S.of(context).welcome,
+            S.of(context).ChangeLanguage,
             style: TextStyle(
               color: Colors.white,
-              fontSize: isArabic() ? 35 : 30,
+              fontSize: isArabic() ? 35 : 27.5,
               fontFamily: 'Rubik',
               fontWeight: isArabic() ? null : FontWeight.w600,
             ),
           ),
-          SizedBox(height: 15),
-          Text(
-            S.of(context).choose,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isArabic() ? 23 : 17.5,
-              fontFamily: 'Rubik',
-              fontWeight: isArabic() ? null : FontWeight.w600,
+          SizedBox(height: isArabic() ? 20 : 25),
+          Padding(
+            padding: EdgeInsets.only(left: isArabic() ? 0 : 7.5),
+            child: Text(
+              S.of(context).ChooseNewLanguage,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isArabic() ? 22.5 : 17.8,
+                fontFamily: 'Rubik',
+                fontWeight: isArabic() ? null : FontWeight.w600,
+              ),
             ),
           ),
-          SizedBox(height: 50),
+          SizedBox(height: 105),
           RadioListTile(
             subtitle: Text(
               S.of(context).mainlanguage,
               style: TextStyle(
                 color: grey,
                 fontSize: 15,
-                fontFamily: 'Rubik',
-                fontWeight: FontWeight.w600,
               ),
             ),
             selectedTileColor: backgroundcolor,
@@ -93,8 +87,6 @@ class _SlangState extends State<Slang> {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
-                fontFamily: 'Rubik',
-                fontWeight: FontWeight.w600,
               ),
             ),
             value: 'English',
@@ -116,8 +108,6 @@ class _SlangState extends State<Slang> {
                 style: TextStyle(
                   color: grey,
                   fontSize: 15,
-                  fontFamily: 'Rubik',
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               selectedTileColor: backgroundcolor,
@@ -127,8 +117,6 @@ class _SlangState extends State<Slang> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
-                  fontFamily: 'Rubik',
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               value: 'Arabic',
@@ -142,25 +130,20 @@ class _SlangState extends State<Slang> {
               },
             ),
           ),
-          SizedBox(height: isArabic() ? 160 : 180),
-          Padding(
-            padding: EdgeInsets.only(
-              right: isArabic() ? 0 : 25,
-              left: isArabic() ? 25 : 0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, 'los');
-                  },
-                  child: Container(
-                    height: 65,
-                    width: 70,
+          SizedBox(height: 150),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Container(
+                    height: 50,
+                    width: 160,
                     decoration: BoxDecoration(
                       color: lightgreen,
-                      borderRadius: BorderRadius.circular(18.5),
+                      borderRadius: BorderRadius.circular(35),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black,
@@ -170,15 +153,19 @@ class _SlangState extends State<Slang> {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.arrow_forward,
-                      color: backgroundcolor,
-                      size: 30,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                    child: Center(
+                      child: Text(
+                        S.of(context).Save,
+                        style: TextStyle(
+                          color: backgroundcolor,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Rubik',
+                        ),
+                      ),
+                    )),
+              ),
+            ],
           ),
         ],
       ),
