@@ -336,8 +336,7 @@ class ChatPage extends StatelessWidget {
                                   child: TextButton.icon(
                                     onPressed: () async {
                                       await signout(context);
-                                      ssj(context,
-                                          S.of(context).LogoutSucceed);
+                                      ssj(context, S.of(context).LogoutSucceed);
                                     },
                                     label: Text(
                                       S.of(context).Logout,
